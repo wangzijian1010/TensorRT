@@ -8,47 +8,46 @@ set(DEPRECATION_FLAG "-Wno-deprecated-declarations")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DEPRECATION_FLAG}")
 
 # CUDA
-find_package(CUDA REQUIRED)
-message(STATUS "Found CUDA headers: ${CUDA_INCLUDE_DIRS}")
-message(STATUS "Found CUDA libraries: ${CUDA_LIBRARIES}")
+set(CUDA_DIR /usr/local/cuda)
+include_directories(${CUDA_DIR}/include)
+link_directories(${CUDA_DIR}/lib64)
 
 # TensorRT
-set(TENSORRT_ROOT /usr/local/TensorRT-8.2.5.1)
-find_path(TENSORRT_INCLUDE_DIR NvInfer.h
-        HINTS ${TENSORRT_ROOT} PATH_SUFFIXES include/)
-message(STATUS "Found TensorRT headers: ${TENSORRT_INCLUDE_DIR}")
+set(TENSORRT_ROOT /usr/local/TensorRT-8.6.1.6)
+include_directories(${TENSORRT_ROOT}/include)
+link_directories(${TENSORRT_ROOT}/lib)
 
-# TensorRT infer
-find_library(TENSORRT_LIBRARY_INFER nvinfer
-        HINTS ${TENSORRT_ROOT} ${TENSORRT_BUILD} ${CUDA_TOOLKIT_ROOT_DIR}
-        PATH_SUFFIXES lib lib64 lib/x64)
-message(STATUS "Found TensorRT-nvinfer libs: ${TENSORRT_LIBRARY_INFER}")
-
-# TensorRT onnxparser
-find_library(TENSORRT_LIBRARY_ONNXPARSER nvonnxparser
-        HINTS  ${TENSORRT_ROOT} ${TENSORRT_BUILD} ${CUDA_TOOLKIT_ROOT_DIR}
-        PATH_SUFFIXES lib lib64 lib/x64)
-message(STATUS "Found TensorRT-onnxparser libs: ${TENSORRT_LIBRARY_ONNXPARSER}")
-set(TENSORRT_LIBRARY ${TENSORRT_LIBRARY_INFER} ${TENSORRT_LIBRARY_ONNXPARSER})
 
 # OpenCV
-find_package(OpenCV REQUIRED)
+set(Opencv_DIR /home/ai-test1/wangzijian/lite.ai.toolkit/third_party/opencv)
+include_directories(${Opencv_DIR}/include/opencv4/)
+link_directories(${Opencv_DIR}/lib)
 
-add_executable(yolov5 yolov5.cpp)
-target_include_directories(
-    yolov5 PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CUDA_INCLUDE_DIRS} 
-    ${TENSORRT_INCLUDE_DIR} 
-    ${OpenCV_INCLUDE_DIRS} 
-)
+add_executable(model_gen model_gen.cpp logger.h logging.h)
+add_executable(model_infer infer.cpp logger.h logging.h)
+add_executable(model_infer_yolov8 infer_yolov8.cpp logger.h logging.h)
+
+
 
 target_link_libraries(
-    yolov5
-    ${CUDA_LIBRARIES} 
-    ${TENSORRT_LIBRARY} 
-    ${OpenCV_LIBS}
+        model_gen nvinfer nvonnxparser nvinfer_plugin cudart  opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs opencv_dnn
 )
+# Ensure the library path is included
+target_link_libraries(model_gen ${TENSORRT_ROOT}/lib/libnvinfer_builder_resource.so.8.6.1)
+
+
+target_link_libraries(
+        model_infer nvinfer nvonnxparser nvinfer_plugin cudart  opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs opencv_dnn
+)
+# Ensure the library path is included
+target_link_libraries(model_infer ${TENSORRT_ROOT}/lib/libnvinfer_builder_resource.so.8.6.1)
+
+target_link_libraries(
+        model_infer_yolov8 nvinfer nvonnxparser nvinfer_plugin cudart  opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs opencv_dnn
+)
+# Ensure the library path is included
+target_link_libraries(model_infer_yolov8 ${TENSORRT_ROOT}/lib/libnvinfer_builder_resource.so.8.6.1)
+
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
