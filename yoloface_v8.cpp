@@ -288,9 +288,7 @@ int main(){
     }
 
     draw_bboxes(img,boxes);
-
-    cv::imwrite("/home/ai-test1/wangzijian/yolov5-trt/output.jpg",img);
-
+    
 }
 
 
