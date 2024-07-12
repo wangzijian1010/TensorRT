@@ -26,6 +26,8 @@ link_directories(${Opencv_DIR}/lib)
 add_executable(model_gen model_gen.cpp logger.h logging.h)
 add_executable(model_infer infer.cpp logger.h logging.h)
 add_executable(model_infer_yolov8 infer_yolov8.cpp logger.h logging.h)
+add_executable(model_infer_yolov8face yoloface_v8.cpp logger.h logging.h)
+
 
 
 
@@ -48,6 +50,11 @@ target_link_libraries(
 # Ensure the library path is included
 target_link_libraries(model_infer_yolov8 ${TENSORRT_ROOT}/lib/libnvinfer_builder_resource.so.8.6.1)
 
+target_link_libraries(
+        model_infer_yolov8face nvinfer nvonnxparser nvinfer_plugin cudart  opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs opencv_dnn
+)
+# Ensure the library path is included
+target_link_libraries(model_infer_yolov8face ${TENSORRT_ROOT}/lib/libnvinfer_builder_resource.so.8.6.1)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

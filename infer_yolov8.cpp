@@ -168,7 +168,6 @@ int main(int argc, char** argv) {
     float* output = new float[outputSize];
 
     doInference(*context, input, output, 1, inputH * inputW * 3, outputSize);
-
     // Postprocess output
     std::vector<cv::Rect> boxes;
     std::vector<float> confidences;
