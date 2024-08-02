@@ -16,6 +16,7 @@ add_executable(clip_cpp
         tokenizer.h
         main.cpp
         vocab.h
+        text_encode.h
         )
 
 target_link_libraries(clip_cpp onnxruntime)

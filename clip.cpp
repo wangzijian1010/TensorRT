@@ -114,12 +114,11 @@ void clip::inference(std::vector<int> input, std::vector<float>& output) {
     std::vector<const char*> input_names_cstr(input_names1.size());
     std::vector<const char*> output_names_cstr(output_names1.size());
 
-    for (size_t i = 0; i < input_names1.size(); ++i) {
-        input_names_cstr[i] = input_names1[i].c_str();
-    }
-    for (size_t i = 0; i < output_names1.size(); ++i) {
-        output_names_cstr[i] = output_names1[i].c_str();
-    }
+    std::transform(input_names1.begin(), input_names1.end(), input_names_cstr.begin(),
+                   [](const std::string& str) { return str.c_str(); });
+
+    std::transform(output_names1.begin(), output_names1.end(), output_names_cstr.begin(),
+                   [](const std::string& str) { return str.c_str(); });
 
     // 运行推理
     std::vector<Ort::Value> ort_outputs = ort_session->Run(
@@ -133,14 +132,15 @@ void clip::inference(std::vector<int> input, std::vector<float>& output) {
 
     // 处理输出...
     // 可以根据需要从 ort_outputs 中提取数据并填充 output 向量
-    std::cout<<"infer done!"<<endl;
-
 
 
     const float *text_feature_ptr = ort_outputs[0].GetTensorMutableData<float>();
 
     for (int i = 0 ; i < 512 ; ++i)
+    {
         std::cout<<text_feature_ptr[i]<<std::endl;
+        output.push_back(text_feature_ptr[i]);
+    }
 
 
 }
